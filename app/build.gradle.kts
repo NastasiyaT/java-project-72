@@ -3,20 +3,14 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     application
-    id("checkstyle")
+    checkstyle
     id("io.freefair.lombok") version "8.3"
-    jacoco
     id("com.github.ben-manes.versions") version "0.47.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 application {
     mainClass.set("hexlet.code.App")
-}
-
-jacoco {
-    toolVersion = "0.8.9"
-    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
 group = "hexlet.code"
@@ -49,16 +43,13 @@ tasks.test {
         // showCauses = true
         showStandardStreams = true
     }
-    finalizedBy(tasks.jacocoTestReport)
 }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-
+tasks.withType<Checkstyle>().configureEach {
     reports {
         xml.required = false
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+        html.required = true
+        html.stylesheet = resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
     }
 }
 
