@@ -20,7 +20,7 @@ jobs:
           gradle-version: 8.3
           arguments: build
           build-root-directory: app
-      - run: ./gradlew checkstyleMain
+      - run: ./gradlew check
       - run: ./gradlew test
 
   # deploy:
