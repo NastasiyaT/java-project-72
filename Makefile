@@ -1,4 +1,7 @@
-.DEFAULT_GOAL := build-run
+.DEFAULT_GOAL := run-dist
+
+run-dist: 
+	make -C app run-dist
 
 clean:
 	make -C app clean
@@ -26,8 +29,5 @@ lint:
 
 update-deps:
 	make -C app update-deps
-
-
-build-run: build run
 
 .PHONY: build
