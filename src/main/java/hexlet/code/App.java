@@ -42,7 +42,7 @@ public class App {
     public static Javalin getApp() throws IOException, SQLException {
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(Driver.class.getName());
+        hikariConfig.setDriverClassName(org.postgresql.Driver.class.getName());
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
