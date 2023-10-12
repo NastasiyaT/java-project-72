@@ -11,7 +11,6 @@ import org.h2.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
