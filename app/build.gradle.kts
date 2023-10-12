@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     application
     checkstyle
+    jacoco
     id("io.freefair.lombok") version "8.3"
     id("com.github.ben-manes.versions") version "0.47.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -11,6 +12,11 @@ plugins {
 
 application {
     mainClass.set("hexlet.code.App")
+}
+
+jacoco {
+    toolVersion = "0.8.9"
+    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
 group = "hexlet.code"
@@ -42,14 +48,17 @@ tasks.test {
         // showStackTraces = true
         // showCauses = true
         showStandardStreams = true
+        finalizedBy(tasks.jacocoTestReport)
     }
 }
 
-tasks.withType<Checkstyle>().configureEach {
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
     reports {
         xml.required = false
-        html.required = true
-        html.stylesheet = resources.text.fromFile("config/xsl/checkstyle-custom.xsl")
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
 }
 
