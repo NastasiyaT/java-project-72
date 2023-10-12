@@ -1,16 +1,17 @@
 package hexlet.code;
 
-import hexlet.code.repository.BaseRepository;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hexlet.code.repository.BaseRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.util.StringUtils;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
@@ -18,13 +19,9 @@ import java.util.stream.Collectors;
 public class App {
 
     private static String getDatabaseUrl() {
-        String jdbcUrl = System.getenv("JDBC_DATABASE_URL");
 
-        if (StringUtils.isNullOrEmpty(jdbcUrl)) {
-            jdbcUrl = "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;";
-        }
-
-        return jdbcUrl;
+        return System.getenv()
+                .getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;");
     }
 
     private static int getPort() {
@@ -45,10 +42,7 @@ public class App {
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
-        var url = App.class.getClassLoader().getResource("schema.sql");
-        var file = new File(url.getFile());
-        var sql = Files.lines(file.toPath())
-                .collect(Collectors.joining("\n"));
+        String sql = getContentFromStream(getFileFromResourceAsStream("schema.sql"));;
 
         log.info(sql);
         try (var connection = dataSource.getConnection();
@@ -66,5 +60,15 @@ public class App {
         return app;
     }
 
+    private static InputStream getFileFromResourceAsStream(String fileName) {
+        ClassLoader classLoader = App.class.getClassLoader();
+        return classLoader.getResourceAsStream(fileName);
+    }
+
+    private static String getContentFromStream(InputStream is) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
 
 }
