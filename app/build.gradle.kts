@@ -5,12 +5,18 @@ plugins {
     application
     id("checkstyle")
     id("io.freefair.lombok") version "8.3"
+    jacoco
     id("com.github.ben-manes.versions") version "0.47.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 application {
     mainClass.set("hexlet.code.App")
+}
+
+jacoco {
+    toolVersion = "0.8.9"
+    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
 group = "hexlet.code"
@@ -28,7 +34,6 @@ dependencies {
     implementation("io.javalin:javalin-rendering:5.6.0")
     implementation("gg.jte:jte:3.0.1")
     implementation("org.postgresql:postgresql:42.6.0")
-    implementation("org.jacoco:jacoco:0.8.10")
 
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
@@ -43,6 +48,17 @@ tasks.test {
         // showStackTraces = true
         // showCauses = true
         showStandardStreams = true
+    }
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
 }
 
