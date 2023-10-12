@@ -11,6 +11,7 @@ import org.h2.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ public class App {
     public static Javalin getApp() throws IOException, SQLException {
 
         var hikariConfig = new HikariConfig();
+        hikariConfig.setDriverClassName(Driver.class.getName());
         hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
