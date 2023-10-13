@@ -24,7 +24,7 @@ public class App {
 
     private static String getDatabaseUrl() {
         return System.getenv()
-                .getOrDefault("APP_ENV", "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;");
+                .getOrDefault("JDBC_ENV", "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;");
     }
 
     private static InputStream getFileFromResourceAsStream(String fileName) {
@@ -53,7 +53,11 @@ public class App {
     public static Javalin getApp() throws IOException, SQLException {
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getDatabaseUrl());
+        String databaseUrl = getDatabaseUrl();
+        if (databaseUrl.contains("postgresql")) {
+            hikariConfig.setDriverClassName(org.postgresql.Driver.class.getName());
+        }
+        hikariConfig.setJdbcUrl(databaseUrl);
 
         var dataSource = new HikariDataSource(hikariConfig);
         String sql = getContentFromStream(getFileFromResourceAsStream("schema.sql"));
