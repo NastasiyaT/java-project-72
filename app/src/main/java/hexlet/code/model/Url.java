@@ -1,10 +1,13 @@
 package hexlet.code.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 
+@NoArgsConstructor
 @Getter
 @Setter
 public class Url {

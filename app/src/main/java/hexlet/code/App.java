@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
+import hexlet.code.controller.UrlsController;
 import hexlet.code.repository.BaseRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
@@ -77,7 +78,10 @@ public class App {
 
         app.before(ctx -> ctx.contentType("text/html; charset=utf-8"));
 
-        app.get(NamedRoutes.rootPath(), ctx -> ctx.render("mainpage.jte"));
+        app.get(NamedRoutes.rootPath(), UrlsController::build);
+        app.post(NamedRoutes.rootPath(), UrlsController::create);
+        app.get(NamedRoutes.urlsPath(), UrlsController::index);
+        app.get(NamedRoutes.urlPath("{id}"), UrlsController::show);
 
         return app;
     }
