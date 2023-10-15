@@ -7,15 +7,12 @@ import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 
 public class UrlsController {
     private static final int ITEMS_PER_PAGE = 10;
