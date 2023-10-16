@@ -1,5 +1,6 @@
 package hexlet.code.controller;
 
+import hexlet.code.dto.BasePage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
@@ -15,16 +16,16 @@ import java.sql.Timestamp;
 import java.util.Collections;
 
 public class UrlsController {
-    private static final int ITEMS_PER_PAGE = 10;
 
     public static void build(Context ctx) {
-        ctx.render("urls/build.jte");
+        String message = ctx.consumeSessionAttribute("message");
+        var page = new BasePage(message);
+        ctx.render("urls/build.jte", Collections.singletonMap("page", page));
     }
 
     public static void create(Context ctx) throws SQLException {
-
         try {
-            var formUrl = new URL(ctx.formParamAsClass("name", String.class).get());
+            var formUrl = new URL(ctx.formParamAsClass("url", String.class).get());
             var name = formUrl.getProtocol() + "://" + formUrl.getAuthority();
             var createdAt = new Timestamp(System.currentTimeMillis());
             var url = new Url(name, createdAt);
@@ -44,8 +45,15 @@ public class UrlsController {
 
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
-        var pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
-        var page = new UrlsPage(urls, pageNumber, ITEMS_PER_PAGE);
+        final int ITEMS_PER_PAGE = 10;
+        int pageCount = urls.size() % ITEMS_PER_PAGE == 0 ?
+                urls.size() / ITEMS_PER_PAGE : urls.size() / ITEMS_PER_PAGE + 1;
+        var pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
+
+        var start = ITEMS_PER_PAGE * (pageNumber - 1);
+        var end = Math.min(urls.size(), ITEMS_PER_PAGE * pageNumber);
+        var urlsPerPage = urls.subList(start, end);
+        var page = new UrlsPage(urlsPerPage, pageNumber);
         String message = ctx.consumeSessionAttribute("message");
         page.setMessage(message);
         ctx.render("urls/index.jte", Collections.singletonMap("page", page));

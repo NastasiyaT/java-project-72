@@ -1,57 +1,75 @@
-@import hexlet.code.util.NamedRoutes
 @import hexlet.code.model.Url
+@import hexlet.code.util.NamedRoutes
 @import hexlet.code.dto.urls.UrlsPage
+@import org.apache.commons.lang3.StringUtils
 @param UrlsPage page
 
 @template.layout.page(
-content = @`
-    !{var message = page.getMessage();}
-    @if(message != null)
-        @if(message.contains("успешно"))
-            <div class="alert alert-success shadow-sm p-3 mb-5 bg-body rounded" role="alert">
-                ${message}
-                <button type="button" class="btn-close position-absolute top-50 start-100 translate-middle" aria-label="Close"></button>
+    content = @`
+        <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+            <symbol id="check-circle-fill" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </symbol>
+            <symbol id="exclamation-triangle-fill" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </symbol>
+        </svg>
+        @if(StringUtils.contains(page.getMessage(), "успешно"))
+            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show m-1" role="alert">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                <div>
+                    ${page.getMessage()}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        @elseif(message.contains("уже"))
-            <div class="alert alert-warning shadow-sm p-3 mb-5 bg-body rounded" role="alert">
-                ${message}
-                <button type="button" class="btn-close position-absolute top-50 start-100 translate-middle" aria-label="Close"></button>
+        @elseif(StringUtils.contains(page.getMessage(), "уже"))
+            <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show m-1" role="alert">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                <div>
+                    ${page.getMessage()}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-    @endif
 
-    !{var pageCount = page.getUrls().size() / page.getItemsPerPage();}
+        !{var urls = page.getUrls();}
+        <div class="mx-4 mt-4 mb-0">
+            <div class="my-3 mx-6">
+                <h3>Сайты</h3>
+            </div>
 
-    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-        @for(int i = 1; i < pageCount; i++)
-            <button type="button" class="btn btn-primary"><a href="${NamedRoutes.urlsPath(i)}">i</a></button>
-        @endfor
-    </div>
+            @if(urls.isEmpty())
+                <div class="fs-5">
+                    Список пуст
+                </div>
+            @else
+                <div class="mx-5">
+                    <table class="table table-light table-hover table-bordered border-white border-4">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Название</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for(Url item : page.getUrls())
+                            <tr>
+                                <th scope="row">${item.getId()}</th>
+                                <td><a href="${NamedRoutes.urlPath(item.getId())}">${item.getName()}</a></td>
+                            </tr>
+                        @endfor
+                        </tbody>
+                    </table>
+                </div>
 
-    !{var urls = page.getUrls();}
-    @if(!urls.isEmpty())
-        <table class="table table-light table-hover table-striped table-bordered border-success">
-            <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Название</th>
-            </tr>
-            </thead>
-            <tbody>
-            @for(Url item : urls)
-                <tr>
-                    <th scope="row">${item.getId()}</th>
-                    <td>${item.getName()}</td>
-                </tr>
-            @endfor
-            </tbody>
-        </table>
-    @else
-        <div class="alert alert-warning shadow-sm p-3 mb-5 bg-body rounded" role="alert">
-            Список пуст
-            <button type="button" class="btn-close position-absolute top-50 start-100 translate-middle" aria-label="Close"></button>
+                <div class="btn-toolbar position-relative text-light py-6 d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group me-2" role="group" aria-label="First group">
+                        @for(int i = 1; i <= page.getPageNumber(); i++)
+                            <a class="btn btn-primary" href="${NamedRoutes.urlsPath(i)}" role="button">${i}</a>
+                        @endfor
+                    </div>
+                </div>
+            @endif
         </div>
-    @endif
-
-`
+    `
 )
