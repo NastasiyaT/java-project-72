@@ -19,27 +19,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        <div class="text-bg-dark">
-            <div class="d-flex flex-column pb-1 col-md-10 col-lg-8 mx-auto text-white">
-                <h1 class="display-3 fw-bolder mb-0">Анализатор страниц</h1>
-                <p class="fs-4 fw-lighter">Бесплатно проверяйте сайты на SEO пригодность</p>
-            </div>
-            <div class="my-1">
-                <form class="row-auto" action="${NamedRoutes.rootPath()}" method="post">
-                    <div class="col">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="url-input" placeholder="Ссылка" name="url">
-                            <label for="url-input">Ссылка</label>
-                        </div>
-                        <div>
-                            <button type="submit" class="btn btn-primary mb-3">Проверить</button>
-                        </div>
+
+        <section>
+            <div class="container-fluid bg-dark p-5">
+                <div class="row">
+                    <div class="col-md-10 col-lg-8 mx-auto text-white">
+                        <h1 class="display-4 mb-0">Анализатор страниц</h1>
+                        <p class="lead fw-lighter">Бесплатно проверяйте сайты на SEO пригодность</p>
+                        <form action="/" method="post" class="rss-form text-muted">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <input id="url-input" autofocus="" type="text" required="" name="url" aria-label="url" class="form-control w-100" placeholder="ссылка RSS" autocomplete="off">
+                                        <label for="url-input">Ссылка</label>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="h-100 btn btn-lg btn-primary px-sm-5">Проверить</button>
+                                </div>
+                            </div>
+                        </form>
+                        <p class="opacity-50 mt-2 mb-0 text-muted">Пример: https://www.example.com</p>
                     </div>
-                </form>
+                </div>
             </div>
-            <div class="text-muted fst-italic">
-                Пример: https://www.example.com
-            </div>
-        </div>
+        </section>
     `
 )
