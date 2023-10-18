@@ -16,7 +16,7 @@ application {
 
 jacoco {
     toolVersion = "0.8.9"
-    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
 }
 
 group = "hexlet.code"
@@ -28,15 +28,20 @@ repositories {
 
 dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.7")
+
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("com.h2database:h2:2.2.220")
+    implementation("org.postgresql:postgresql:42.6.0")
+
     implementation("io.javalin:javalin:5.6.1")
+    implementation("io.javalin:javalin-bundle:5.6.1")
     implementation("io.javalin:javalin-rendering:5.6.0")
     implementation("gg.jte:jte:3.0.1")
-    implementation("org.postgresql:postgresql:42.6.0")
+
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
 
+    implementation("org.mockito:mockito-core:5.4.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")

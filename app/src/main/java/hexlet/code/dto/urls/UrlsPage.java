@@ -12,4 +12,8 @@ import java.util.List;
 public class UrlsPage extends BasePage {
     private List<Url> urls;
     private int pageNumber;
+
+    public UrlsPage(List<Url> urls) {
+        this.urls = urls;
+    }
 }

@@ -26,7 +26,7 @@
                     <div class="col-md-10 col-lg-8 mx-auto text-white">
                         <h1 class="display-4 mb-0">Анализатор страниц</h1>
                         <p class="lead fw-lighter">Бесплатно проверяйте сайты на SEO пригодность</p>
-                        <form action="/" method="post" class="rss-form text-muted">
+                        <form action="${NamedRoutes.rootPath()}" method="post" class="rss-form text-muted">
                             <div class="row">
                                 <div class="col">
                                     <div class="form-floating">
@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                         </form>
-                        <p class="opacity-50 mt-2 mb-0 text-muted">Пример: https://www.example.com</p>
+                        <p class="opacity-50 mt-2 mb-0">Пример: https://www.example.com</p>
                     </div>
                 </div>
             </div>

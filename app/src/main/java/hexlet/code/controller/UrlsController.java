@@ -6,6 +6,7 @@ import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
+import hexlet.code.util.Utils;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
@@ -45,18 +46,29 @@ public class UrlsController {
 
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
-        final int ITEMS_PER_PAGE = 10;
-        int pageCount = urls.size() % ITEMS_PER_PAGE == 0 ?
-                urls.size() / ITEMS_PER_PAGE : urls.size() / ITEMS_PER_PAGE + 1;
-        var pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
 
-        var start = ITEMS_PER_PAGE * (pageNumber - 1);
-        var end = Math.min(urls.size(), ITEMS_PER_PAGE * pageNumber);
-        var urlsPerPage = urls.subList(start, end);
-        var page = new UrlsPage(urlsPerPage, pageNumber);
-        String message = ctx.consumeSessionAttribute("message");
-        page.setMessage(message);
-        ctx.render("urls/index.jte", Collections.singletonMap("page", page));
+        if (!urls.isEmpty()) {
+            final int itemsPerPage = 10;
+            int pageCount = (urls.size() % itemsPerPage == 0)
+                    ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
+            int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
+
+            if (pageNumber <= pageCount) {
+                var urlsPerPage = Utils.getItemsPerPage(urls, pageNumber, itemsPerPage);
+                var page1 = new UrlsPage(urlsPerPage, pageNumber);
+                String message = ctx.consumeSessionAttribute("message");
+                page1.setMessage(message);
+                ctx.render("urls/index.jte", Collections.singletonMap("page", page1));
+            } else {
+                throw new NotFoundResponse("Страница не найдена");
+            }
+
+        } else {
+            var page2 = new UrlsPage(urls);
+            String message = ctx.consumeSessionAttribute("message");
+            page2.setMessage(message);
+            ctx.render("urls/index.jte", Collections.singletonMap("page", page2));
+        }
     }
 
     public static void show(Context ctx) throws SQLException {

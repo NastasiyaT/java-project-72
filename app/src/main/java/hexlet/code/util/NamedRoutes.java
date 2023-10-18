@@ -19,6 +19,6 @@ public final class NamedRoutes {
     }
 
     public static String urlsPath(int page) {
-        return "urls?page=" + page;
+        return "/urls?page=" + page;
     }
 }
