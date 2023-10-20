@@ -4,6 +4,8 @@ import hexlet.code.dto.BasePage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import hexlet.code.util.Utils;
@@ -14,7 +16,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class UrlsController {
 
@@ -46,28 +51,27 @@ public class UrlsController {
 
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
+        final int itemsPerPage = 10;
+        int pageCount = (urls.size() % itemsPerPage == 0)
+                ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
+        int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
+        List<Url> urlsPerPage = new ArrayList<>();
 
-        if (!urls.isEmpty()) {
-            final int itemsPerPage = 10;
-            int pageCount = (urls.size() % itemsPerPage == 0)
-                    ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
-            int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
-
-            if (pageNumber <= pageCount) {
-                var urlsPerPage = Utils.getItemsPerPage(urls, pageNumber, itemsPerPage);
-                var page1 = new UrlsPage(urlsPerPage, pageNumber);
-                String message = ctx.consumeSessionAttribute("message");
-                page1.setMessage(message);
-                ctx.render("urls/index.jte", Collections.singletonMap("page", page1));
-            } else {
-                throw new NotFoundResponse("Страница не найдена");
-            }
-
-        } else {
-            var page2 = new UrlsPage(urls);
+        if (urls.isEmpty()) {
+            var pageEmpty = new UrlsPage(urlsPerPage);
             String message = ctx.consumeSessionAttribute("message");
-            page2.setMessage(message);
-            ctx.render("urls/index.jte", Collections.singletonMap("page", page2));
+            pageEmpty.setMessage(message);
+            ctx.render("urls/index.jte", Collections.singletonMap("page", pageEmpty));
+        } else if (pageNumber <= pageCount) {
+            urlsPerPage = Utils.getItemsPerPage(urls, pageNumber, itemsPerPage);
+            Map<Url, List<UrlCheck>> checks = Utils.getItemsPerPageWithChecks(urlsPerPage);
+
+            var page = new UrlsPage(urlsPerPage, checks, pageNumber);
+            String message = ctx.consumeSessionAttribute("message");
+            page.setMessage(message);
+            ctx.render("urls/index.jte", Collections.singletonMap("page", page));
+        } else {
+            throw new NotFoundResponse("Страница не найдена");
         }
     }
 
@@ -75,7 +79,9 @@ public class UrlsController {
         var id = ctx.pathParamAsClass("id", Long.class).get();
         var url = UrlRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
-        var page = new UrlPage(url);
+        var checks = UrlCheckRepository.find(id)
+                .orElse(null);
+        var page = new UrlPage(url, checks);
         ctx.render("urls/show.jte", Collections.singletonMap("page", page));
     }
 }

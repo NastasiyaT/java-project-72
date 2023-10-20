@@ -5,6 +5,7 @@ import hexlet.code.model.Url;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +74,8 @@ public class UrlRepository extends BaseRepository {
                 url.setId(id);
                 result.add(url);
             }
+            result.sort(Comparator.comparing(Url::getId));
+
             return result;
         }
     }

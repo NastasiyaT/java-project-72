@@ -35,7 +35,7 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-                                    <button type="submit" class="h-100 btn btn-lg btn-primary px-sm-5">Проверить</button>
+                                    <button type="submit" class="h-100 btn btn-lg btn-success opacity-75 px-sm-5">Проверить</button>
                                 </div>
                             </div>
                         </form>

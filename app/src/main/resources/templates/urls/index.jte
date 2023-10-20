@@ -2,6 +2,7 @@
 @import hexlet.code.util.NamedRoutes
 @import hexlet.code.dto.urls.UrlsPage
 @import org.apache.commons.lang3.StringUtils
+@import java.text.SimpleDateFormat
 @param UrlsPage page
 
 @template.layout.page(
@@ -32,44 +33,57 @@
             </div>
         @endif
 
-        !{var urls = page.getUrls();}
-        <div class="mx-4 mt-4 mb-0">
-            <div class="my-3 mx-6">
-                <h3>Сайты</h3>
+        <section>
+            <div class="container-lg mt-5">
+                !{var urls = page.getUrls();}
+
+                <div class="mx-4 mt-4 mb-0">
+                    @if(urls.isEmpty())
+                        <div class="fs-4">
+                            Список пуст
+                        </div>
+                    @else
+                        <div class="container-lg mt-5 table-responsive">
+                            <table class="table table-light table-hover table-bordered border-white border-4 caption-top">
+                                <caption class="fs-3 fw-bolder">Сайты</caption>
+                                <thead class="align-middle">
+                                <tr>
+                                    <th class="col-1">ID</th>
+                                    <th>Название</th>
+                                    <th class="col-2">Последняя проверка</th>
+                                    <th class="col-2">Код ответа</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @for(Url item : urls)
+                                    !{var checks = page.getChecks().get(item);}
+                                    <tr>
+                                        <td>${item.getId()}</td>
+                                        <td><a href="${NamedRoutes.urlPath(item.getId())}">${item.getName()}</a></td>
+                                        @if(checks != null)
+                                            !{var lastCheck = checks.get(checks.size() - 1);}
+                                            <td>${new SimpleDateFormat("dd/MM/yy HH:mm").format(lastCheck.getCreatedAt())}</td>
+                                            <td>${lastCheck.getStatusCode()}</td>
+                                        @else
+                                            <td></td>
+                                            <td></td>
+                                        @endif
+                                    </tr>
+                                @endfor
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="btn-toolbar position-relative text-light py-6 d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+                            <div class="btn-group me-2" role="group" aria-label="First group">
+                                @for(int i = 1; i <= page.getPageNumber(); i++)
+                                    <a class="btn btn-success opacity-75" href="${NamedRoutes.urlsPath(i)}" role="button">${i}</a>
+                                @endfor
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
-
-            @if(urls.isEmpty())
-                <div class="fs-5">
-                    Список пуст
-                </div>
-            @else
-                <div class="mx-5">
-                    <table class="table table-light table-hover table-bordered border-white border-4">
-                        <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Название</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @for(Url item : page.getUrls())
-                            <tr>
-                                <th scope="row">${item.getId()}</th>
-                                <td><a href="${NamedRoutes.urlPath(item.getId())}">${item.getName()}</a></td>
-                            </tr>
-                        @endfor
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="btn-toolbar position-relative text-light py-6 d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
-                    <div class="btn-group me-2" role="group" aria-label="First group">
-                        @for(int i = 1; i <= page.getPageNumber(); i++)
-                            <a class="btn btn-primary" href="${NamedRoutes.urlsPath(i)}" role="button">${i}</a>
-                        @endfor
-                    </div>
-                </div>
-            @endif
-        </div>
+        </section>
     `
 )

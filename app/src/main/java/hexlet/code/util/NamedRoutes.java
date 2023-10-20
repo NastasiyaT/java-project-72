@@ -21,4 +21,12 @@ public final class NamedRoutes {
     public static String urlsPath(int page) {
         return "/urls?page=" + page;
     }
+
+    public static String urlCheckPath(Long id) {
+        return urlCheckPath(String.valueOf(id));
+    }
+
+    public static String urlCheckPath(String id) {
+        return "/urls/" + id + "/checks";
+    }
 }

@@ -2,7 +2,11 @@ package hexlet.code;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +16,19 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class AppTest {
+
     private Javalin app;
+
+    private static MockWebServer testServer;
+    private static String website;
+
+    @BeforeAll
+    public static void setServer() {
+        testServer = new MockWebServer();
+        website = testServer.url("/test_app/NastasyaT").toString();
+        testServer.enqueue(new MockResponse().setBody("<h1>Тестовая страница</h1>"));
+        testServer.enqueue(new MockResponse().setResponseCode(200));
+    }
 
     @BeforeEach
     public void setUp() throws IOException, SQLException {
@@ -23,6 +39,11 @@ public final class AppTest {
     @AfterEach
     public void close() {
         app.close();
+    }
+
+    @AfterAll
+    public static void closeServer() throws IOException {
+        testServer.shutdown();
     }
 
     @Test
@@ -46,7 +67,7 @@ public final class AppTest {
     @Test
     public void testUrlsPageWithPageNumber() {
         JavalinTest.test(app, (server, client) -> {
-            client.post("/", "url=http://localhost:7070/");
+            client.post("/", "url=" + website);
             assertThat(client.get("/urls?page=1").code()).isEqualTo(200);
             assertThat(client.get("/urls?page=1").body().string()).contains("/urls?page=1");
             assertThat(client.get("/urls?page=99").body().string()).contains("Страница не найдена");
@@ -56,10 +77,20 @@ public final class AppTest {
     @Test
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
-            Object requestBody = "url=http://localhost:7070/";
+            Object requestBody = "url=" + website;
             var response = client.post("/", requestBody);
             assertThat(response.code()).isEqualTo(200);
-            assertThat(response.body().string()).contains("http://localhost:7070");
+            assertThat(response.body().string()).contains("localhost");
+        });
+    }
+
+    @Test
+    public void testRunCheck() {
+        JavalinTest.test(app, (server, client) -> {
+            client.post("/", "url=" + website);
+            client.post("/urls/1/checks");
+            assertThat(client.get("/urls/1").body().string()).contains("Тестовая страница");
+            assertThat(client.get("/urls/1").body().string()).contains("200");
         });
     }
 }
