@@ -5,7 +5,6 @@ import hexlet.code.model.Url;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +13,13 @@ public class UrlRepository extends BaseRepository {
     public static void save(Url url) throws SQLException {
         var sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
         try (var conn = dataSource.getConnection();
-             var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setString(1, url.getName());
-            preparedStatement.setTimestamp(2, url.getCreatedAt());
-            preparedStatement.executeUpdate();
+            stmt.setString(1, url.getName());
+            stmt.setTimestamp(2, url.getCreatedAt());
+            stmt.executeUpdate();
 
-            var generatedKeys = preparedStatement.getGeneratedKeys();
+            var generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
                 url.setId(generatedKeys.getLong(1));
             } else {
@@ -59,24 +58,49 @@ public class UrlRepository extends BaseRepository {
     }
 
     public static List<Url> getEntities() throws SQLException {
-        var sql = "SELECT * FROM urls";
+        var sql = "SELECT * FROM urls ORDER BY id";
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql)) {
 
             var resultSet = stmt.executeQuery();
-            var result = new ArrayList<Url>();
+            var results = new ArrayList<Url>();
 
             while (resultSet.next()) {
                 var id = resultSet.getLong("id");
                 var name = resultSet.getString("name");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
-                url.setId(id);
-                result.add(url);
+                var url = new Url(id, name, createdAt);
+                results.add(url);
             }
-            result.sort(Comparator.comparing(Url::getId));
+            return results;
+        }
+    }
 
-            return result;
+    public static Optional<List<Url>> getEntitiesPerPage(int itemsPerPage, int pageNumber) throws SQLException {
+        var sql = "SELECT * FROM urls ORDER BY id LIMIT ? OFFSET ?";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+
+            var offset = itemsPerPage * (pageNumber - 1);
+
+            stmt.setInt(1, itemsPerPage);
+            stmt.setInt(2, offset);
+            var resultSet = stmt.executeQuery();
+            List<Url> results = new ArrayList<>();
+
+            while (resultSet.next()) {
+                var id = resultSet.getLong("id");
+                var name = resultSet.getString("name");
+                var createdAt = resultSet.getTimestamp("created_at");
+                var url = new Url(id, name, createdAt);
+                results.add(url);
+            }
+
+            if (!results.isEmpty()) {
+                return Optional.of(results);
+            } else {
+                return Optional.empty();
+            }
         }
     }
 }

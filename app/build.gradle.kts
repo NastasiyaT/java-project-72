@@ -38,6 +38,7 @@ dependencies {
     implementation("io.javalin:javalin-rendering:5.6.0")
     implementation("gg.jte:jte:3.0.1")
     implementation("com.konghq:unirest-java:4.0.0-RC2")
+    implementation("org.jsoup:jsoup:1.16.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
 

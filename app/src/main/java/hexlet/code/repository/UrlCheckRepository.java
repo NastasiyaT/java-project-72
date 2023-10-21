@@ -5,7 +5,6 @@ import hexlet.code.model.UrlCheck;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,11 +51,9 @@ public class UrlCheckRepository extends BaseRepository {
                 var description = resultSet.getString("description");
                 var createdAt = resultSet.getTimestamp("created_at");
                 var urlCheck = new UrlCheck(statusCode, h1, title, description, createdAt);
-                urlCheck.setUrlId(urlId);
                 urlCheck.setId(currentListId);
 
                 currentListId++;
-
                 results.add(urlCheck);
             }
 
@@ -68,30 +65,21 @@ public class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static List<UrlCheck> getEntities() throws SQLException {
-        var sql = "SELECT * FROM url_checks";
+    public static Optional<UrlCheck> findLatestCheck(Long urlId) throws SQLException {
+        var sql = "SELECT status_code, created_at FROM url_checks WHERE url_id = ? ORDER BY id DESC LIMIT 1";
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql)) {
 
+            stmt.setLong(1, urlId);
             var resultSet = stmt.executeQuery();
-            var result = new ArrayList<UrlCheck>();
 
-            while (resultSet.next()) {
-                var id = resultSet.getLong("id");
-                var urlId = resultSet.getLong("url_id");
+            if (resultSet.next()) {
                 var statusCode = resultSet.getInt("status_code");
-                var h1 = resultSet.getString("h1");
-                var title = resultSet.getString("title");
-                var description = resultSet.getString("description");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var urlCheck = new UrlCheck(statusCode, h1, title, description, createdAt);
-                urlCheck.setId(id);
-                urlCheck.setUrlId(urlId);
-                result.add(urlCheck);
+                var check = new UrlCheck(statusCode, createdAt);
+                return Optional.of(check);
             }
-            result.sort(Comparator.comparing(UrlCheck::getId));
-
-            return result;
+            return Optional.empty();
         }
     }
 }

@@ -16,7 +16,7 @@
             </symbol>
         </svg>
         @if(StringUtils.contains(page.getMessage(), "успешно"))
-            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show m-1" role="alert">
+            <div class="alert alert-success d-flex align-items-center alert-dismissible fade show m-0" role="alert">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
                 <div>
                     ${page.getMessage()}
@@ -24,7 +24,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @elseif(StringUtils.contains(page.getMessage(), "уже"))
-            <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show m-1" role="alert">
+            <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show m-0" role="alert">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                 <div>
                     ${page.getMessage()}
@@ -56,14 +56,14 @@
                                 </thead>
                                 <tbody>
                                 @for(Url item : urls)
-                                    !{var checks = page.getChecks().get(item);}
                                     <tr>
                                         <td>${item.getId()}</td>
                                         <td><a href="${NamedRoutes.urlPath(item.getId())}">${item.getName()}</a></td>
-                                        @if(checks != null)
-                                            !{var lastCheck = checks.get(checks.size() - 1);}
-                                            <td>${new SimpleDateFormat("dd/MM/yy HH:mm").format(lastCheck.getCreatedAt())}</td>
-                                            <td>${lastCheck.getStatusCode()}</td>
+
+                                        !{var latestCheck = page.getChecks().get(item);}
+                                        @if(latestCheck != null)
+                                            <td>${new SimpleDateFormat("dd/MM/yy HH:mm").format(latestCheck.getCreatedAt())}</td>
+                                            <td>${latestCheck.getStatusCode()}</td>
                                         @else
                                             <td></td>
                                             <td></td>

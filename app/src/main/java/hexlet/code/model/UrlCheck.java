@@ -1,14 +1,10 @@
 package hexlet.code.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 public class UrlCheck {
@@ -25,6 +21,11 @@ public class UrlCheck {
         this.h1 = h1;
         this.title = title;
         this.description = description;
+        this.createdAt = createdAt;
+    }
+
+    public UrlCheck(int statusCode, Timestamp createdAt) {
+        this.statusCode = statusCode;
         this.createdAt = createdAt;
     }
 }

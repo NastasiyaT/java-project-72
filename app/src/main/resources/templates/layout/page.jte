@@ -45,7 +45,7 @@
 <main class="flex-grow-1 overflow-y-auto">
     ${content}
 </main>
-<footer class="footer border-top py-3 mt-5 bg-light text-success">
+<footer class="footer border-top py-3 mt-5 bg-light">
     <div class="text-center text-muted">
         Created by <a href="https://github.com/NastasiyaT">NastasiyaT</a>
     </div>

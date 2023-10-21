@@ -11,7 +11,7 @@
             </symbol>
         </svg>
         @if(StringUtils.contains(page.getMessage(), "Некорректный"))
-            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show m-1" role="alert">
+            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show m-0" role="alert">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                 <div>
                     ${page.getMessage()}

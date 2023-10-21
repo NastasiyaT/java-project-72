@@ -6,13 +6,12 @@ import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UrlChecksController {
     public static void check(Context ctx) throws SQLException {
@@ -23,23 +22,19 @@ public class UrlChecksController {
         var name = url.getName();
 
         try {
-            HttpResponse<String> response = Unirest.get(name).asString();
-            String responseBody = response.getBody();
-
+            var response = Unirest.get(name).asString();
             int statusCode = response.getStatus();
 
-            Pattern patternH1 = Pattern.compile("<h1>([^<]*)</h1>", Pattern.CASE_INSENSITIVE);
-            Matcher matcherH1 = patternH1.matcher(responseBody);
-            String h1 = matcherH1.find() ? matcherH1.group(1) : "";
+            Document responseBody = Jsoup.parse(response.getBody());
 
-            Pattern patternTitle = Pattern.compile("<title>([^<]*)</title>", Pattern.CASE_INSENSITIVE);
-            Matcher matcherTitle = patternTitle.matcher(responseBody);
-            String title = matcherTitle.find() ? matcherTitle.group(1) : "";
+            String title = responseBody.select("h1").first() != null
+                    ? responseBody.select("h1").first().text() : "";
 
-            Pattern patternDescription = Pattern.compile("<meta name=\"description\" content=\"([^<]*)\">",
-                    Pattern.CASE_INSENSITIVE);
-            Matcher matcherDescription = patternDescription.matcher(responseBody);
-            String description = matcherDescription.find() ? matcherDescription.group(1) : "";
+            String h1 = responseBody.select("title").first() != null
+                    ? responseBody.select("title").first().text() : "";
+
+            String description = !responseBody.select("meta[name=description]").isEmpty()
+                    ? responseBody.select("meta[name=description]").get(0).attr("content") : "";
 
             var createdAt = new Timestamp(System.currentTimeMillis());
 
