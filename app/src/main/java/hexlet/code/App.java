@@ -26,7 +26,7 @@ public class App {
 
     private static String getDatabaseUrl() {
         return System.getenv()
-                .getOrDefault("JDBC_ENV", "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;");
+                .getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:webapp;DB_CLOSE_DELAY=-1;");
     }
 
     private static InputStream getFileFromResourceAsStream(String fileName) {
