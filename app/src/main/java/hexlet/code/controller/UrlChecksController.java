@@ -27,11 +27,10 @@ public class UrlChecksController {
 
             Document responseBody = Jsoup.parse(response.getBody());
 
-            String title = responseBody.select("h1").first() != null
-                    ? responseBody.select("h1").first().text() : "";
+            String h1 = responseBody.selectFirst("h1") != null
+                    ? responseBody.selectFirst("h1").text() : "";
 
-            String h1 = responseBody.select("title").first() != null
-                    ? responseBody.select("title").first().text() : "";
+            String title = responseBody.title();
 
             String description = !responseBody.select("meta[name=description]").isEmpty()
                     ? responseBody.select("meta[name=description]").get(0).attr("content") : "";
