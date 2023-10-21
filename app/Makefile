@@ -1,5 +1,11 @@
+check-deps:
+	./gradlew dependencyUpdates -Drevision=release
+
+dev:
+	./gradlew run
+
 setup:
-	gradle wrapper --gradle-version 8.2.1
+	gradle wrapper --gradle-version 8.3
 
 clean:
 	./gradlew clean
@@ -7,34 +13,21 @@ clean:
 build:
 	./gradlew clean build
 
-start:
-	APP_ENV=development ./gradlew run
+start: dev
 
 install:
 	./gradlew install
 
-start-dist:
-	APP_ENV=production ./build/install/app/bin/app
-
-generate-migrations:
-	./gradlew generateMigrations
-
 lint:
-	./gradlew checkstyleMain checkstyleTest
+	./gradlew checkstyleMain
 
 test:
 	./gradlew test
 
-report:
-	./gradlew jacocoTestReport
-
-check-updates:
-	./gradlew dependencyUpdates
-
 image-build:
-	docker build -t hexletcomponents/app:latest .
+	docker build -t hexletcomponents/java-javalin-example:latest .
 
 image-push:
-	docker push hexletcomponents/app:latest
+	docker push hexletcomponents/java-javalin-example:latest
 
 .PHONY: build
