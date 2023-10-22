@@ -27,16 +27,16 @@ repositories {
 }
 
 dependencies {
-    implementation("org.slf4j:slf4j-simple:2.0.7")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("com.h2database:h2:2.2.220")
-    implementation("org.postgresql:postgresql:42.6.0")
+    implementation("com.h2database:h2:2.2.222")
+    implementation("org.postgresql:postgresql:42.5.4")
 
-    implementation("io.javalin:javalin:5.6.1")
-    implementation("io.javalin:javalin-bundle:5.6.1")
-    implementation("io.javalin:javalin-rendering:5.6.0")
-    implementation("gg.jte:jte:3.0.1")
+    implementation("io.javalin:javalin:5.6.2")
+    implementation("io.javalin:javalin-bundle:5.6.2")
+    implementation("io.javalin:javalin-rendering:5.6.2")
+    implementation("gg.jte:jte:3.1.0")
     implementation("com.konghq:unirest-java:4.0.0-RC2")
     implementation("org.jsoup:jsoup:1.16.1")
 
