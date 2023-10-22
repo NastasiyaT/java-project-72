@@ -80,7 +80,7 @@ public class App {
         app.before(ctx -> ctx.contentType("text/html; charset=utf-8"));
 
         app.get(NamedRoutes.rootPath(), UrlsController::build);
-        app.post(NamedRoutes.rootPath(), UrlsController::create);
+        app.post(NamedRoutes.urlsPath(), UrlsController::create);
         app.get(NamedRoutes.urlsPath(), UrlsController::index);
         app.get(NamedRoutes.urlPath("{id}"), UrlsController::show);
         app.post(NamedRoutes.urlCheckPath("{id}"), UrlChecksController::check);

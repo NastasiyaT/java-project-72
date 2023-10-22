@@ -67,7 +67,7 @@ public final class AppTest {
     @Test
     public void testUrlsPageWithPageNumber() {
         JavalinTest.test(app, (server, client) -> {
-            client.post("/", "url=" + website);
+            client.post("/urls", "url=" + website);
             assertThat(client.get("/urls?page=1").code()).isEqualTo(200);
             assertThat(client.get("/urls?page=1").body().string()).contains("/urls?page=1");
             assertThat(client.get("/urls?page=99").body().string()).contains("Страница не найдена");
@@ -78,7 +78,7 @@ public final class AppTest {
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
             Object requestBody = "url=" + website;
-            var response = client.post("/", requestBody);
+            var response = client.post("/urls", requestBody);
             assertThat(response.code()).isEqualTo(200);
             assertThat(response.body().string()).contains("localhost");
         });
@@ -87,7 +87,7 @@ public final class AppTest {
     @Test
     public void testRunCheck() {
         JavalinTest.test(app, (server, client) -> {
-            client.post("/", "url=" + website);
+            client.post("/urls", "url=" + website);
             client.post("/urls/1/checks");
             assertThat(client.get("/urls/1").body().string()).contains("Тестовая страница");
             assertThat(client.get("/urls/1").body().string()).contains("200");

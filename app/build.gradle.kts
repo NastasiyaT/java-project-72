@@ -1,12 +1,11 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     application
     checkstyle
     jacoco
+    java
     id("io.freefair.lombok") version "8.3"
-    id("java")
     id("com.github.ben-manes.versions") version "0.47.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -48,41 +47,24 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
 
     testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation(platform("org.junit:junit-bom:5.9.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
 }
 
-tasks.test {
+tasks.named<Test>("test") {
     useJUnitPlatform()
     testLogging {
+        events("failed", "skipped", "passed")
         exceptionFormat = TestExceptionFormat.FULL
-        events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
-        // showStackTraces = true
-        // showCauses = true
-        showStandardStreams = true
-        finalizedBy(tasks.jacocoTestReport)
     }
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-
     reports {
         xml.required = true
         html.outputLocation = layout.buildDirectory.dir("reports/jacoco/test")
     }
 }
-
-//tasks.withType<Jar>().configureEach {
-//    manifest {
-//        attributes["Main-Class"] = "hexlet.code.App"
-//    }
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//    from(sourceSets.main.get().output)
-//    dependsOn(configurations.runtimeClasspath)
-//    from({
-//        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-//    })
-//}
