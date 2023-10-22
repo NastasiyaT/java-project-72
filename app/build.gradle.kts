@@ -6,6 +6,7 @@ plugins {
     checkstyle
     jacoco
     id("io.freefair.lombok") version "8.3"
+    id("java")
     id("com.github.ben-manes.versions") version "0.47.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -17,6 +18,10 @@ application {
 jacoco {
     toolVersion = "0.8.9"
     reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_20
 }
 
 group = "hexlet.code"
@@ -66,12 +71,11 @@ tasks.jacocoTestReport {
 
     reports {
         xml.required = true
-        csv.required = false
         html.outputLocation = layout.buildDirectory.dir("reports/jacoco/test")
     }
 }
 
-tasks.withType<Jar> {
+tasks.withType<Jar>().configureEach {
     manifest {
         attributes["Main-Class"] = "hexlet.code.App"
     }
