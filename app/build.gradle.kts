@@ -75,14 +75,14 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.withType<Jar>().configureEach {
-    manifest {
-        attributes["Main-Class"] = "hexlet.code.App"
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(sourceSets.main.get().output)
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
-}
+//tasks.withType<Jar>().configureEach {
+//    manifest {
+//        attributes["Main-Class"] = "hexlet.code.App"
+//    }
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//    from(sourceSets.main.get().output)
+//    dependsOn(configurations.runtimeClasspath)
+//    from({
+//        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+//    })
+//}
