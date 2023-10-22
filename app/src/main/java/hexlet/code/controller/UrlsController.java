@@ -12,7 +12,8 @@ import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class UrlsController {
 
     public static void create(Context ctx) throws SQLException {
         try {
-            var formUrl = new URL(ctx.formParamAsClass("url", String.class).get());
+            var formUrl = new URI(ctx.formParamAsClass("url", String.class).get()).toURL();
             var name = formUrl.getProtocol() + "://" + formUrl.getAuthority();
             var createdAt = new Timestamp(System.currentTimeMillis());
             var url = new Url(name, createdAt);
@@ -42,7 +43,7 @@ public class UrlsController {
                 ctx.sessionAttribute("message", "Страница успешно добавлена");
             }
             ctx.redirect(NamedRoutes.urlsPath());
-        } catch (MalformedURLException e) {
+        } catch (IllegalArgumentException | URISyntaxException | MalformedURLException e) {
             ctx.sessionAttribute("message", "Некорректный URL");
             ctx.redirect(NamedRoutes.rootPath());
         }
