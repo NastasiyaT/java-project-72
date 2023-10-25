@@ -1,5 +1,8 @@
 package hexlet.code;
 
+import hexlet.code.controller.UrlsController;
+import hexlet.code.repository.UrlCheckRepository;
+import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.mockwebserver.MockResponse;
@@ -11,9 +14,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class AppTest {
 
@@ -23,16 +32,16 @@ public final class AppTest {
     private static String website;
 
     @BeforeAll
-    public static void setServer() {
+    public static void setServer() throws IOException {
         testServer = new MockWebServer();
         website = testServer.url("/test_app/NastasyaT").toString();
-        testServer.enqueue(new MockResponse().setBody("<h1>Тестовая страница</h1>"));
-        testServer.enqueue(new MockResponse().setResponseCode(200));
+        Path path = Paths.get("src/test/resources/webpage.html").toAbsolutePath().normalize();
+        String content = Files.readString(path);
+        testServer.enqueue(new MockResponse().setBody(content));
     }
 
     @BeforeEach
     public void setUp() throws IOException, SQLException {
-        System.setProperty("JDBC_ENV", "jdbc:h2:mem:test_database;DB_CLOSE_DELAY=-1;");
         app = App.getApp();
     }
 
@@ -78,9 +87,18 @@ public final class AppTest {
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
             Object requestBody = "url=" + website;
-            var response = client.post("/urls", requestBody);
-            assertThat(response.code()).isEqualTo(200);
-            assertThat(response.body().string()).contains("localhost");
+            client.post("/urls", requestBody);
+            var name = UrlsController.normalizeUrl(website);
+            assertTrue(UrlRepository.existsByName(name));
+        });
+    }
+
+    @Test
+    public void testCreateUrlFail() {
+        JavalinTest.test(app, (server, client) -> {
+            Object requestBody = "url=абракадабра";
+            client.post("/urls", requestBody);
+            assertFalse(UrlRepository.existsByName("абракадабра"));
         });
     }
 
@@ -89,8 +107,9 @@ public final class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls", "url=" + website);
             client.post("/urls/1/checks");
-            assertThat(client.get("/urls/1").body().string()).contains("Тестовая страница");
-            assertThat(client.get("/urls/1").body().string()).contains("200");
+            var check = UrlCheckRepository.findLatestCheck(1L).get();
+            assertThat(check.getStatusCode()).isEqualTo(200);
+            assertThat(check.getCreatedAt()).isBeforeOrEqualTo(new Date(System.currentTimeMillis()));
         });
     }
 }

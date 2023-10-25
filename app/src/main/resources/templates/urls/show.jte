@@ -33,7 +33,7 @@
             </div>
 
             !{var checks = page.getChecks();}
-            @if(checks != null)
+            @if(!checks.isEmpty())
                 <div class="flex-row fs-6 mt-2">
                     <table class="table table-light table-hover table-bordered border-white border-4 caption-top">
                         <caption class="fs-4">Проверки</caption>

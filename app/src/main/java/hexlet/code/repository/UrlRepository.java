@@ -38,7 +38,9 @@ public class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 var name = resultSet.getString("name");
                 var createdAt = resultSet.getTimestamp("created_at");
-                var url = new Url(name, createdAt);
+                var url = new Url();
+                url.setName(name);
+                url.setCreatedAt(createdAt);
                 url.setId(id);
                 return Optional.of(url);
             }
@@ -76,7 +78,7 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<List<Url>> getEntitiesPerPage(int itemsPerPage, int pageNumber) throws SQLException {
+    public static List<Url> getEntitiesPerPage(int itemsPerPage, int pageNumber) throws SQLException {
         var sql = "SELECT * FROM urls ORDER BY id LIMIT ? OFFSET ?";
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql)) {
@@ -96,11 +98,7 @@ public class UrlRepository extends BaseRepository {
                 results.add(url);
             }
 
-            if (!results.isEmpty()) {
-                return Optional.of(results);
-            } else {
-                return Optional.empty();
-            }
+            return results;
         }
     }
 }

@@ -30,15 +30,16 @@ public class UrlsController {
     }
 
     public static void create(Context ctx) throws SQLException {
+        var url = new Url();
+
         try {
-            var formUrl = new URI(ctx.formParamAsClass("url", String.class).get()).toURL();
-            var name = formUrl.getProtocol() + "://" + formUrl.getAuthority();
-            var createdAt = new Timestamp(System.currentTimeMillis());
-            var url = new Url(name, createdAt);
+            var name = normalizeUrl(ctx.formParamAsClass("url", String.class).get());
 
             if (UrlRepository.existsByName(name)) {
                 ctx.sessionAttribute("message", "Страница уже существует");
             } else {
+                url.setName(name);
+                url.setCreatedAt(new Timestamp(System.currentTimeMillis()));
                 UrlRepository.save(url);
                 ctx.sessionAttribute("message", "Страница успешно добавлена");
             }
@@ -52,16 +53,17 @@ public class UrlsController {
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
         final int itemsPerPage = 10;
+        var pageCount = (urls.size() % itemsPerPage == 0)
+                ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
+        int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
         var page = new UrlsPage();
 
         if (urls.isEmpty()) {
             page.setUrls(urls);
+        } else if (pageNumber > pageCount) {
+            throw new NotFoundResponse("Страница не найдена");
         } else {
-            var pageCount = (urls.size() % itemsPerPage == 0)
-                    ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
-            int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
-            List<Url> urlsPerPage = UrlRepository.getEntitiesPerPage(itemsPerPage, pageNumber)
-                    .orElseThrow(() -> new NotFoundResponse("Страница не найдена"));
+            List<Url> urlsPerPage = UrlRepository.getEntitiesPerPage(itemsPerPage, pageNumber);
             Map<Url, UrlCheck> urlsWithLatestChecks = new HashMap<>();
 
             for (Url item : urlsPerPage) {
@@ -83,9 +85,13 @@ public class UrlsController {
         var id = ctx.pathParamAsClass("id", Long.class).get();
         var url = UrlRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
-        var checks = UrlCheckRepository.find(id)
-                .orElse(null);
+        var checks = UrlCheckRepository.find(id);
         var page = new UrlPage(url, checks);
         ctx.render("urls/show.jte", Collections.singletonMap("page", page));
+    }
+
+    public static String normalizeUrl(String path) throws URISyntaxException, MalformedURLException {
+        var newPath = new URI(path).toURL();
+        return String.format("%s://%s", newPath.getProtocol(), newPath.getAuthority());
     }
 }

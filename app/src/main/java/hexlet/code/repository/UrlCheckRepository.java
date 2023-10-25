@@ -33,7 +33,7 @@ public class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static Optional<List<UrlCheck>> find(Long urlId) throws SQLException {
+    public static List<UrlCheck> find(Long urlId) throws SQLException {
         var sql = "SELECT * FROM url_checks WHERE url_id = ?";
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql)) {
@@ -56,12 +56,7 @@ public class UrlCheckRepository extends BaseRepository {
                 currentListId++;
                 results.add(urlCheck);
             }
-
-            if (!results.isEmpty()) {
-                return Optional.of(results);
-            } else {
-                return Optional.empty();
-            }
+            return results;
         }
     }
 
