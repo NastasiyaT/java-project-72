@@ -30,9 +30,8 @@ public class UrlsController {
     }
 
     public static void create(Context ctx) throws SQLException {
-        var url = new Url();
-
         try {
+            var url = new Url();
             var name = normalizeUrl(ctx.formParamAsClass("url", String.class).get());
 
             if (UrlRepository.existsByName(name)) {
