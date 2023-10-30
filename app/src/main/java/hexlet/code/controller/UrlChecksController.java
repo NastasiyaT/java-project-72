@@ -5,6 +5,7 @@ import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
@@ -21,25 +22,29 @@ public class UrlChecksController {
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
         var name = url.getName();
 
-        var response = Unirest.get(name).asString();
-        Document responseBody = Jsoup.parse(response.getBody());
+        try {
+            var response = Unirest.get(name).asString();
+            Document responseBody = Jsoup.parse(response.getBody());
 
-        int statusCode = response.getStatus();
+            int statusCode = response.getStatus();
 
-        String h1 = responseBody.selectFirst("h1") != null
-                ? responseBody.selectFirst("h1").text() : "";
+            String h1 = responseBody.selectFirst("h1") != null
+                    ? responseBody.selectFirst("h1").text() : "";
 
-        String title = responseBody.title();
+            String title = responseBody.title();
 
-        String description = !responseBody.select("meta[name=description]").isEmpty()
-                ? responseBody.select("meta[name=description]").get(0).attr("content") : "";
+            String description = !responseBody.select("meta[name=description]").isEmpty()
+                    ? responseBody.select("meta[name=description]").get(0).attr("content") : "";
 
-        var createdAt = new Timestamp(System.currentTimeMillis());
+            var createdAt = new Timestamp(System.currentTimeMillis());
 
-        var urlCheck = new UrlCheck(statusCode, h1, title, description, createdAt);
-        urlCheck.setUrlId(urlId);
-        UrlCheckRepository.save(urlCheck);
+            var urlCheck = new UrlCheck(statusCode, h1, title, description, createdAt);
+            urlCheck.setUrlId(urlId);
+            UrlCheckRepository.save(urlCheck);
 
-        ctx.redirect(NamedRoutes.urlPath(urlId));
+            ctx.redirect(NamedRoutes.urlPath(urlId));
+        } catch (Exception e) {
+            throw new InternalServerErrorResponse("500 Internal Server Error");
+        }
     }
 }
