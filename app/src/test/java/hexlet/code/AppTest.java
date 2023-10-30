@@ -106,8 +106,12 @@ public final class AppTest {
     public void testRunCheck() {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls", "url=" + website);
-            client.post("/urls/1/checks");
-            var check = UrlCheckRepository.findLatestCheck(1L).get();
+
+            var urlName = UrlsController.normalizeUrl(website);
+            var urlId = UrlRepository.findByName(urlName).get().getId();
+            client.post(String.format("/urls/%s/checks", urlId));
+
+            var check = UrlCheckRepository.findLatestCheck(urlId).get();
             assertThat(check.getStatusCode()).isEqualTo(200);
             assertThat(check.getCreatedAt()).isBeforeOrEqualTo(new Date(System.currentTimeMillis()));
         });
