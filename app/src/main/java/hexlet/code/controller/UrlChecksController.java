@@ -5,7 +5,6 @@ import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
-import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.NotFoundResponse;
 import kong.unirest.Unirest;
 import org.jsoup.Jsoup;
