@@ -116,4 +116,17 @@ public final class AppTest {
             assertThat(check.getCreatedAt()).isBeforeOrEqualTo(new Date(System.currentTimeMillis()));
         });
     }
+
+    @Test
+    public void testRunCheckFail() {
+        JavalinTest.test(app, (server, client) -> {
+            var urlName = UrlsController.normalizeUrl(website) + 1;
+            client.post("/urls", "url=" + urlName);
+
+            var urlId = UrlRepository.findByName(urlName).get().getId();
+            client.post(String.format("/urls/%s/checks", urlId));
+
+            assertThat(UrlCheckRepository.find(urlId)).isEmpty();
+        });
+    }
 }

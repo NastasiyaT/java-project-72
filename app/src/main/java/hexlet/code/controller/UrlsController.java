@@ -85,7 +85,11 @@ public class UrlsController {
         var url = UrlRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
         var checks = UrlCheckRepository.find(id);
+
         var page = new UrlPage(url, checks);
+        String message = ctx.consumeSessionAttribute("message");
+        page.setMessage(message);
+
         ctx.render("urls/show.jte", Collections.singletonMap("page", page));
     }
 

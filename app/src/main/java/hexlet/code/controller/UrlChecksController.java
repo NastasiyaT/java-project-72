@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class UrlChecksController {
-    public static void check(Context ctx) throws SQLException, RuntimeException {
+    public static void check(Context ctx) throws SQLException {
         var urlId = ctx.pathParamAsClass("id", Long.class).get();
 
         var url = UrlRepository.find(urlId)
@@ -43,8 +43,9 @@ public class UrlChecksController {
             UrlCheckRepository.save(urlCheck);
 
             ctx.redirect(NamedRoutes.urlPath(urlId));
-        } catch (Exception e) {
-            throw new InternalServerErrorResponse("500 Internal Server Error");
+        } catch (RuntimeException e) {
+            ctx.sessionAttribute("message", "Проверка не прошла");
+            ctx.redirect(NamedRoutes.urlPath(urlId));
         }
     }
 }
