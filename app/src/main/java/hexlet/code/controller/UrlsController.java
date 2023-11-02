@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class UrlsController {
@@ -52,28 +51,26 @@ public class UrlsController {
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
         final int itemsPerPage = 10;
-        var pageCount = (urls.size() % itemsPerPage == 0)
-                ? (urls.size() / itemsPerPage) : (urls.size() / itemsPerPage + 1);
+        var pageCount = getPage(urls.size(), itemsPerPage);
         int pageNumber = ctx.queryParamAsClass("page", Integer.class).getOrDefault(pageCount);
         var page = new UrlsPage();
 
-        if (urls.isEmpty()) {
-            page.setUrls(urls);
-        } else if (pageNumber > pageCount) {
+        if (!urls.isEmpty() && pageNumber > pageCount) {
             throw new NotFoundResponse("Страница не найдена");
-        } else {
-            List<Url> urlsPerPage = UrlRepository.getEntitiesPerPage(itemsPerPage, pageNumber);
-            Map<Url, UrlCheck> urlsWithLatestChecks = new HashMap<>();
+        } else if (!urls.isEmpty()) {
+            urls = UrlRepository.getEntitiesPerPage(itemsPerPage, pageNumber);
 
-            for (Url item : urlsPerPage) {
+            Map<Url, UrlCheck> urlsWithLatestChecks = new HashMap<>();
+            for (Url item : urls) {
                 var latestCheck = UrlCheckRepository.findLatestCheck(item.getId())
                         .orElse(null);
                 urlsWithLatestChecks.put(item, latestCheck);
             }
-            page.setUrls(urlsPerPage);
+
             page.setChecks(urlsWithLatestChecks);
             page.setPageNumber(pageNumber);
         }
+        page.setUrls(urls);
 
         String message = ctx.consumeSessionAttribute("message");
         page.setMessage(message);
@@ -82,7 +79,7 @@ public class UrlsController {
 
     public static void show(Context ctx) throws SQLException {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var url = UrlRepository.find(id)
+        var url = UrlRepository.findById(id)
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
         var checks = UrlCheckRepository.find(id);
 
@@ -96,5 +93,9 @@ public class UrlsController {
     public static String normalizeUrl(String path) throws URISyntaxException, MalformedURLException {
         var newPath = new URI(path).toURL();
         return String.format("%s://%s", newPath.getProtocol(), newPath.getAuthority());
+    }
+
+    private static int getPage(int a, int b) {
+        return (a % b == 0) ? (a / b) : (a / b + 1);
     }
 }

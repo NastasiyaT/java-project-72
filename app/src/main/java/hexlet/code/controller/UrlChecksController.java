@@ -17,7 +17,7 @@ public class UrlChecksController {
     public static void check(Context ctx) throws SQLException {
         var urlId = ctx.pathParamAsClass("id", Long.class).get();
 
-        var url = UrlRepository.find(urlId)
+        var url = UrlRepository.findById(urlId)
                 .orElseThrow(() -> new NotFoundResponse("Запись с таким ID не найдена"));
         var name = url.getName();
 
