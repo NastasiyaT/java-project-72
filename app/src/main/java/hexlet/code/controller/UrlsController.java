@@ -90,7 +90,7 @@ public class UrlsController {
         ctx.render("urls/show.jte", Collections.singletonMap("page", page));
     }
 
-    public static String normalizeUrl(String path) throws URISyntaxException, MalformedURLException {
+    private static String normalizeUrl(String path) throws URISyntaxException, MalformedURLException {
         var newPath = new URI(path).toURL();
         return String.format("%s://%s", newPath.getProtocol(), newPath.getAuthority());
     }

@@ -40,8 +40,9 @@ public class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 var url = getUrl(resultSet);
                 return Optional.of(url);
+            } else {
+                return Optional.empty();
             }
-            return Optional.empty();
         }
     }
 
@@ -56,8 +57,9 @@ public class UrlRepository extends BaseRepository {
             if (resultSet.next()) {
                 var url = getUrl(resultSet);
                 return Optional.of(url);
+            } else {
+                return Optional.empty();
             }
-            return Optional.empty();
         }
     }
 
@@ -104,7 +106,6 @@ public class UrlRepository extends BaseRepository {
                 var url = getUrl(resultSet);
                 results.add(url);
             }
-
             return results;
         }
     }

@@ -1,6 +1,5 @@
 package hexlet.code;
 
-import hexlet.code.controller.UrlsController;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLException;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,18 +28,24 @@ public final class AppTest {
 
     private static MockWebServer testServer;
     private static String website;
+    private static String name;
 
     @BeforeAll
-    public static void setServer() throws IOException {
+    public static void setServer() throws Exception {
         testServer = new MockWebServer();
-        website = testServer.url("/test_app/NastasyaT").toString();
+
         Path path = Paths.get("src/test/resources/webpage.html").toAbsolutePath().normalize();
         String content = Files.readString(path);
         testServer.enqueue(new MockResponse().setBody(content));
+
+        testServer.start();
+
+        website = testServer.url("/test_app/NastasyaT").toString();
+        name = String.format("http://localhost:%s", testServer.getPort());
     }
 
     @BeforeEach
-    public void setUp() throws IOException, SQLException {
+    public void setUp() throws Exception {
         app = App.getApp();
     }
 
@@ -87,8 +91,8 @@ public final class AppTest {
     public void testCreateUrl() {
         JavalinTest.test(app, (server, client) -> {
             Object requestBody = "url=" + website;
-            client.post("/urls", requestBody);
-            var name = UrlsController.normalizeUrl(website);
+            var request = client.post("/urls", requestBody);
+            assertThat(request.code()).isEqualTo(200);
             assertTrue(UrlRepository.existsByName(name));
         });
     }
@@ -107,12 +111,14 @@ public final class AppTest {
         JavalinTest.test(app, (server, client) -> {
             client.post("/urls", "url=" + website);
 
-            var urlName = UrlsController.normalizeUrl(website);
-            var urlId = UrlRepository.findByName(urlName).get().getId();
+            var urlId = UrlRepository.findByName(name).get().getId();
             client.post(String.format("/urls/%s/checks", urlId));
 
-            var check = UrlCheckRepository.findLatestCheck(urlId).get();
+            var check = UrlCheckRepository.find(urlId).get(0);
             assertThat(check.getStatusCode()).isEqualTo(200);
+            assertThat(check.getH1()).isEqualTo("Hello, world!");
+            assertThat(check.getTitle()).isEqualTo("Проверка связи");
+            assertThat(check.getDescription()).isEqualTo("Тестовая страница");
             assertThat(check.getCreatedAt()).isBeforeOrEqualTo(new Date(System.currentTimeMillis()));
         });
     }
@@ -120,10 +126,10 @@ public final class AppTest {
     @Test
     public void testRunCheckFail() {
         JavalinTest.test(app, (server, client) -> {
-            var urlName = UrlsController.normalizeUrl(website) + 1;
-            client.post("/urls", "url=" + urlName);
+            var fakeWebsite = "http://localhost:7070";
+            client.post("/urls", "url=" + fakeWebsite);
 
-            var urlId = UrlRepository.findByName(urlName).get().getId();
+            var urlId = UrlRepository.findByName(fakeWebsite).get().getId();
             client.post(String.format("/urls/%s/checks", urlId));
 
             assertThat(UrlCheckRepository.find(urlId)).isEmpty();
